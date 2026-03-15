@@ -33,9 +33,15 @@ from pdf_bot import *
 
 load_dotenv()
 APP_URL = os.environ.get("APP_URL")
+if APP_URL and not APP_URL.endswith("/"):
+    APP_URL += "/"
+
 PORT = int(os.environ.get("PORT", "8443"))
 TELE_TOKEN = os.environ.get("TELE_TOKEN_BETA", os.environ.get("TELE_TOKEN"))
-DEV_TELE_ID = int(os.environ.get("DEV_TELE_ID"))
+DEV_TELE_ID = int(os.environ.get("DEV_TELE_ID", "0"))
+
+if not TELE_TOKEN:
+    raise RuntimeError("TELE_TOKEN is missing")
 
 TIMEOUT = 20
 CALLBACK_DATA = "callback_data"
