@@ -1,28 +1,13 @@
-import os
-
-from dotenv import load_dotenv
-from google.cloud import datastore
 from telegram import User
 
-from pdf_bot.constants import USER, LANGUAGE, LANGS_SHORT
+from pdf_bot.constants import LANGUAGE, LANGS_SHORT
 
-
-load_dotenv()
-GCP_KEY_FILE = os.environ.get("GCP_KEY_FILE")
-GCP_CRED = os.environ.get("GCP_CRED")
-
-if GCP_CRED is not None:
-    with open(GCP_KEY_FILE, "w") as f:
-        f.write(GCP_CRED)
-
-if GCP_KEY_FILE is not None:
-    client = datastore.Client.from_service_account_json(GCP_KEY_FILE)
-else:
-    client = datastore.Client()
+# In-memory storage
+USERS = {}
 
 
 def create_user(tele_user: User) -> None:
-    key = client.key(USER, tele_user.id)
+    user_id = tele_user.id
     user_lang_code = tele_user.language_code
     lang_code = "en_GB"
 
@@ -33,11 +18,28 @@ def create_user(tele_user: User) -> None:
     ):
         lang_code = LANGS_SHORT[user_lang_code]
 
-    with client.transaction():
-        db_user = client.get(key=key)
-        if db_user is None:
-            db_user = datastore.Entity(key)
-        if LANGUAGE not in db_user:
-            db_user[LANGUAGE] = lang_code
+    if user_id not in USERS:
+        USERS[user_id] = {
+            LANGUAGE: lang_code
+        }
 
-        client.put(db_user)
+
+def get_user_data(user_id: int):
+    return USERS.get(user_id, {})
+
+
+def set_user_language(user_id: int, lang_code: str):
+    if user_id not in USERS:
+        USERS[user_id] = {}
+    USERS[user_id][LANGUAGE] = lang_code
+
+
+def increment_task(user_id: int, task: str):
+    if user_id not in USERS:
+        USERS[user_id] = {}
+
+    USERS[user_id][task] = USERS[user_id].get(task, 0) + 1
+
+
+def get_all_users():
+    return USERS
