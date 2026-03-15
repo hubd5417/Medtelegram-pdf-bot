@@ -1,0 +1,15 @@
+qpdf
+libqpdf-dev
+ghostscript
+poppler-utils
+tesseract-ocr
+libxml2
+libxslt1.1
+libjpeg-dev
+zlib1g-dev
+libffi-dev
+libpango-1.0-0
+libcairo2
+libgdk-pixbuf-2.0-0
+shared-mime-info
+fonts-dejavu-core
